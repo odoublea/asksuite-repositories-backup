@@ -14,7 +14,7 @@ accountName=$3
 #echo $accountName
 
 echo "Getting Repositories size"
-size="$(curl -s -u "$userName:$password" "https://api.bitbucket.org/2.0/repositories/$accountName" | jsonValue slug size 1)"
+size="$(curl -s -u "$userName:$password" "https://api.bitbucket.org/2.0/repositories/$accountName?pagelen=100&page=100000" | jsonValue slug size 1)"
 echo "Number of repositories: $size"
 echo ""
 echo "Getting Repositories slug"
