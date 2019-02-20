@@ -20,7 +20,6 @@ echo ""
 echo "Getting Repositories slug"
 
 count=1
-ARRAY=()
 while true
 do
 	curl -s -u "$userName:$password" "https://api.bitbucket.org/2.0/repositories/$accountName?pagelen=10&page=$count" | jsonValue slug null >> ListOfRepoSlug.txt
@@ -30,7 +29,10 @@ do
     	break
     fi
 done
+
 sed -i '/^$/d' ListOfRepoSlug.txt
+echo "" >> ListOfRepoSlug.txt
+
 file=ListOfRepoSlug.txt
 count=1
 while IFS= read line; 
