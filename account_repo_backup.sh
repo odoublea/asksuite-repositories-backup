@@ -1,4 +1,5 @@
 #!/bin/bash
+#set -x
 
 function jsonValue() {
 KEY=$1
@@ -22,7 +23,7 @@ echo "Getting Repositories slug"
 count=1
 while true
 do
-	curl -s -u "$userName:$password" "https://api.bitbucket.org/2.0/repositories/$accountName?pagelen=10&page=$count" | jsonValue slug null >> ListOfRepoSlug.txt
+curl -s -u "$userName:$password" "https://api.bitbucket.org/2.0/repositories/$accountName?pagelen=100&page=1" | jsonValue full_name null  | sed -n -e "/$accountName/p" >> ListOfRepoSlug.txt
 	count=$(($count+1))
 	size=$(($size-10))
 	if (("$size" <= "0")); then
@@ -38,8 +39,8 @@ count=1
 while IFS= read line; 
 do 
    line="$(echo -e "${line}" | tr -d '[:space:]')";
-   printf "$count. Cloning $accountName/$line \n"
-   git clone --mirror https://$userName:$password@bitbucket.org/$accountName/$line
+   printf "$count. Cloning $line \n"
+   git clone --mirror https://$userName:$password@bitbucket.org/$line
    printf "Completed\n"
    count=$(($count+1))   
 done <"$file"
