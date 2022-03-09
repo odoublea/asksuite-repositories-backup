@@ -25,7 +25,7 @@ while true
 do
 curl -s -u "$userName:$password" "https://api.bitbucket.org/2.0/repositories/$accountName?pagelen=100&page=1" | jsonValue full_name null  | sed -n -e "/$accountName/p" >> ListOfRepoSlug.txt
 	count=$(($count+1))
-	size=$(($size-10))
+	size=$(($size-100))
 	if (("$size" <= "0")); then
     	break
     fi
