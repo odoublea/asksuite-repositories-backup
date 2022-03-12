@@ -1,29 +1,17 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+### What is this script for? ###
 
-### What is this repository for? ###
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+The script will perform a full backup of your workspace's repositories using `git clone --mirror <RepoURL>`
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+* Download the [bash script](https://bitbucket.org/rtest123/repo-backup-script/raw/master/account_repo_backup.sh) and put it within a new backup directory
+* Make the script executable with `chmod 777 account_repo_backup.sh`
+* Run the bash script with `./account_repo_backup.sh <Username> <AppPassword> <WorkspaceID>`
 
 ### Contribution guidelines ###
 
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+* Fork the repository
+* Make changes on a new branch
+* Create a Pull Request
