@@ -10,9 +10,6 @@ awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'$KEY'\042/){print ""; printf $(i+1)};
 userName=$1
 password=$2
 accountName=$3
-#echo $userName
-#echo $password
-#echo $accountName
 
 echo "Getting Repositories size"
 size="$(curl -s -u "$userName:$password" "https://api.bitbucket.org/2.0/repositories/$accountName?pagelen=100&page=100000" | jsonValue slug size 1)"
@@ -47,25 +44,25 @@ done <"$file"
 cd ..
 tar -czf "$timestamp.tar.gz" "$timestamp"
 
-# Prepare the AWS S3 upload request
-bucket=""
-file="$timestamp.tar.gz"
-contentType="application/x-gzip"
-dateValue=$(date -u +"%a, %d %b %Y %H:%M:%S GMT")
-resource="/$bucket/$file"
-stringToSign="PUT\n\n$contentType\n$dateValue\n$resource"
-s3Key=""
-s3Secret=""
-signature=$(echo -en "$stringToSign" | openssl sha1 -hmac "$s3Secret" -binary | base64)
-url="https://$bucket.s3.amazonaws.com/$file"
-
-# Perform the upload
-curl -X PUT -T "$file" \
-    -H "Host: $bucket.s3.amazonaws.com" \
-    -H "Date: $dateValue" \
-    -H "Content-Type: $contentType" \
-    -H "Authorization: AWS $s3Key:$signature" \
-    "$url"
+# # Prepare the AWS S3 upload request
+# bucket=""
+# file="$timestamp.tar.gz"
+# contentType="application/x-gzip"
+# dateValue=$(date -u +"%a, %d %b %Y %H:%M:%S GMT")
+# resource="/$bucket/$file"
+# stringToSign="PUT\n\n$contentType\n$dateValue\n$resource"
+# s3Key=""
+# s3Secret=""
+# signature=$(echo -en "$stringToSign" | openssl sha1 -hmac "$s3Secret" -binary | base64)
+# url="https://$bucket.s3.amazonaws.com/$file"
+#
+# # Perform the upload
+# curl -X PUT -T "$file" \
+#     -H "Host: $bucket.s3.amazonaws.com" \
+#     -H "Date: $dateValue" \
+#     -H "Content-Type: $contentType" \
+#     -H "Authorization: AWS $s3Key:$signature" \
+#     "$url"
 
 rm -rf "$timestamp"
 rm -rf ListOfRepoSlug.txt
