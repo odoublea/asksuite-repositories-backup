@@ -7,7 +7,7 @@ function jsonValue() {
     num=$3
 awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'$KEY'\042/){print ""; printf $(i+1)}; if( -z "$KEY2"){if($i~/'$KEY2'\042/){print $(i+1)}}}}' | tr -d '"' | sed -n ${num}p; }
 
-yesterday=$(date -d "yesterday" "+%Y-%m-%d")
+yesterday=$(date -d "today" "+%Y-%m-%d")
 filter="&q=updated_on>=$yesterday"
 
 userName=""
@@ -18,9 +18,9 @@ workspace=""
 while getopts u:p:w:full flag
 do
     case "${flag}" in
-        u) userName=${OPTARG};;
-        p) password=${OPTARG};;
-        w) workspace=${OPTARG};;
+        u) userName=${OPTARG} ;;
+        p) password=${OPTARG} ;;
+        w) workspace=${OPTARG} ;;
         f) filter=""
     esac
 done
@@ -61,9 +61,9 @@ grep -v '^$' ListOfRepoSlug.txt > ListOfRepoSlug_temp.txt
 mv ListOfRepoSlug_temp.txt ListOfRepoSlug.txt
 cat ListOfRepoSlug.txt | wc -l
 
-timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
-mkdir "$timestamp"
-cd "$timestamp" || exit
+temp_folder=$(date +"%Y-%m-%d_%H-%M-%S")
+mkdir "$temp_folder"
+cd "$temp_folder" || exit
 
 file=../ListOfRepoSlug.txt
 count=1
@@ -77,29 +77,24 @@ do
 done <"$file"
 
 cd ..
-tar -czf "$timestamp.tar.gz" "$timestamp"
+compressed_file="$temp_folder.tar.gz"
+tar -czf "$compressed_file" "$temp_folder"
 
-# # Prepare the AWS S3 upload request
-# bucket=""
-# file="$timestamp.tar.gz"
-# contentType="application/x-gzip"
-# dateValue=$(date -u +"%a, %d %b %Y %H:%M:%S GMT")
-# resource="/$bucket/$file"
-# stringToSign="PUT\n\n$contentType\n$dateValue\n$resource"
-# s3Key=""
-# s3Secret=""
-# signature=$(echo -en "$stringToSign" | openssl sha1 -hmac "$s3Secret" -binary | base64)
-# url="https://$bucket.s3.amazonaws.com/$file"
-#
-# # Perform the upload
-# curl -X PUT -T "$file" \
-#   #     -H "Host: $bucket.s3.amazonaws.com" \
-#   #     -H "Date: $dateValue" \
-#   #     -H "Content-Type: $contentType" \
-#   #     -H "Authorization: AWS $s3Key:$signature" \
-#   #     "$url"
+bucket_name="asksuite-backup"
 
-rm -rf "$timestamp"
+# Upload file to S3
+aws s3 cp "$compressed_file" "s3://$bucket_name/$compressed_file"
+
+# Check if upload was successful
+if aws s3 ls "s3://$bucket_name/$compressed_file" &> /dev/null; then
+    echo "File exists in S3 bucket."
+else
+    echo "File does not exist in S3 bucket."
+    exit 1
+fi
+
+rm -rf "$temp_folder"
+rm -rf "$compressed_file"
 rm -rf ListOfRepoSlug.txt
 
 echo "Completed"
