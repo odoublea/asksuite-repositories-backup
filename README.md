@@ -13,14 +13,15 @@ This Bash script automates the backup process for repositories hosted on Bitbuck
 ## Usage
 
 ```bash
-./account_repo_backup.sh -u <username> -p <password> -w <workspace> [-full]
+./account_repo_backup.sh -u <username> -p <password> -w <workspace> -b <bucket_name> [-full]
 ```
 
 ### Options:
 
 - `-u <username>`: Bitbucket username.
-- `-p <password>`: Bitbucket password.
+- `-p <password>`: Bitbucket App password.
 - `-w <workspace>`: Bitbucket workspace.
+- `-b <bucket_name>`: AWS S3 bucket name.
 - `-f`: Full backup (optional). If this parameter is not provided, the script will only backup the repositories that have been updated in the day before the script is executed. If it is provided, the script will backup all repositories in the workspace.
 
 ## How It Works
@@ -31,11 +32,6 @@ This Bash script automates the backup process for repositories hosted on Bitbuck
 4. The archive is uploaded to an Amazon S3 bucket.
 5. Finally, the script cleans up temporary files.
 
-## Example
-
-```bash
-./account_repo_backup.sh -u myusername -p mypassword -w myworkspace
-```
 
 ## Notes
 

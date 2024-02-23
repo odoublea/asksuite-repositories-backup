@@ -13,26 +13,29 @@ filter="&q=updated_on>=$yesterday"
 userName=""
 password=""
 workspace=""
+bucket_name=""
 
 #rewrite the arguments extraction using getopts
-while getopts u:p:w:full flag
+while getopts u:p:w:b:f flag
 do
     case "${flag}" in
         u) userName=${OPTARG} ;;
         p) password=${OPTARG} ;;
         w) workspace=${OPTARG} ;;
+        b) bucket_name=${OPTARG} ;;
         f) filter=""
     esac
 done
 
-if [ -z "$userName" ] || [ -z "$password" ] || [ -z "$workspace" ]
+if [ -z "$userName" ] || [ -z "$password" ] || [ -z "$workspace" ] || [ -z "$bucket_name" ]
 then
-    echo "Usage: account_repo_backup.sh -u <username> -p <password> -w <workspace> [-full]"
+    echo "Usage: account_repo_backup.sh -u <username> -p <password> -w <workspace> -b <bucket_name> [-full]"
     echo "Options:"
     echo "  -u <username>     Bitbucket username"
     echo "  -p <password>     Bitbucket password"
     echo "  -w <workspace>    Bitbucket workspace"
-    echo "  -f                Full backup"
+    echo "  -b <bucket_name>  AWD S3 bucket name"
+    echo "  -f (optional)     Full backup"
     exit 1
 fi
 
@@ -80,10 +83,13 @@ cd ..
 compressed_file="$temp_folder.tar.gz"
 tar -czf "$compressed_file" "$temp_folder"
 
-bucket_name="asksuite-backup"
 
 # Upload file to S3
 aws s3 cp "$compressed_file" "s3://$bucket_name/$compressed_file"
+
+rm -rf "$temp_folder"
+rm -rf "$compressed_file"
+rm -rf ListOfRepoSlug.txt
 
 # Check if upload was successful
 if aws s3 ls "s3://$bucket_name/$compressed_file" &> /dev/null; then
@@ -92,9 +98,5 @@ else
     echo "File does not exist in S3 bucket."
     exit 1
 fi
-
-rm -rf "$temp_folder"
-rm -rf "$compressed_file"
-rm -rf ListOfRepoSlug.txt
 
 echo "Completed"
