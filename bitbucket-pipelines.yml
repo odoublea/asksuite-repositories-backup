@@ -8,34 +8,16 @@ image: atlassian/default-image:2
 pipelines:
   default:
     - step:
-        name: Install AWS CLI v2
-        clone:
-          enabled: false
-        image: atlassian/default-image:3
         script:
-          - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          - unzip awscliv2.zip
-          - ./aws/install
-          - aws --version
-    - step:
-        script:
+          - apt-get update && apt-get install -y awscli
           - chmod 777 account_repo_backup.sh
           - ./account_repo_backup.sh -u $userName -p $password -w $workspace
           - ls -lah
   custom:
     full:
       - step:
-          name: Install AWS CLI v2
-          clone:
-            enabled: false
-          image: atlassian/default-image:3
           script:
-            - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            - unzip awscliv2.zip
-            - ./aws/install
-            - aws --version
-      - step:
-          script:
+            - apt-get update && apt-get install -y awscli
             - chmod 777 account_repo_backup.sh
             - ./account_repo_backup.sh -f -u $userName -p $password -w $workspace
             - ls -lah
