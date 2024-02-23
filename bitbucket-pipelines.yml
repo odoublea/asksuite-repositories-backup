@@ -12,9 +12,10 @@ pipelines:
           - chmod 777 account_repo_backup.sh
           - ./account_repo_backup.sh -u $userName -p $password -w $workspace
           - ls -lah
-  full:
-    - step:
-        script:
-          - chmod 777 account_repo_backup.sh
-          - ./account_repo_backup.sh -f -u $userName -p $password -w $workspace
-          - ls -lah
+  custom:
+    full:
+      - step:
+          script:
+            - chmod 777 account_repo_backup.sh
+            - ./account_repo_backup.sh -f -u $userName -p $password -w $workspace
+            - ls -lah
