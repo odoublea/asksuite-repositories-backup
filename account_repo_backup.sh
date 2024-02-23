@@ -7,24 +7,59 @@ function jsonValue() {
     num=$3
 awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'$KEY'\042/){print ""; printf $(i+1)}; if( -z "$KEY2"){if($i~/'$KEY2'\042/){print $(i+1)}}}}' | tr -d '"' | sed -n ${num}p; }
 
-userName=$1
-password=$2
-accountName=$3
+yesterday=$(date -d "yesterday" "+%Y-%m-%d")
+filter="&q=updated_on>=$yesterday"
+
+userName=""
+password=""
+workspace=""
+
+#rewrite the arguments extraction using getopts
+while getopts u:p:w:full flag
+do
+    case "${flag}" in
+        u) userName=${OPTARG};;
+        p) password=${OPTARG};;
+        w) workspace=${OPTARG};;
+        f) filter=""
+    esac
+done
+
+if [ -z "$userName" ] || [ -z "$password" ] || [ -z "$workspace" ]
+then
+    echo "Usage: account_repo_backup.sh -u <username> -p <password> -w <workspace> [-full]"
+    echo "Options:"
+    echo "  -u <username>     Bitbucket username"
+    echo "  -p <password>     Bitbucket password"
+    echo "  -w <workspace>    Bitbucket workspace"
+    echo "  -f                Full backup"
+    exit 1
+fi
+
+size_url="https://api.bitbucket.org/2.0/repositories/$workspace?pagelen=100&page=100000$filter"
 
 echo "Getting Repositories size"
-size="$(curl -s -u "$userName:$password" "https://api.bitbucket.org/2.0/repositories/$accountName?pagelen=100&page=100000" | jsonValue slug size 1)"
+size="$(curl -s -u "$userName:$password" $size_url | jsonValue slug size 1)"
 echo "Number of repositories: $size"
-echo ""
-echo "Getting Repositories slug"
 
-yesterday=$(date -d "yesterday" "+%Y-%m-%d")
-echo "Yesterday: $yesterday"
 
-curl -s -u "$userName:$password" "https://api.bitbucket.org/2.0/repositories/$accountName?pagelen=100&page=1&q=updated_on>=$yesterday" | jsonValue full_name null  | sed -n -e "/$accountName/p" >> ListOfRepoSlug.txt
+count=1
+while true
+do
+    repos_url="https://api.bitbucket.org/2.0/repositories/$workspace?pagelen=100&page=$count$filter"
+    echo "Getting Repositories slug from $repos_url"
+    curl -s -u "$userName:$password" $repos_url | jsonValue full_name null  | sed -n -e "/$workspace/p" >> ListOfRepoSlug.txt
+    count=$(($count+1))
+    size=$(($size-100))
+    if (("$size" <= "0")); then
+        break
+    fi
+done
 
 sort -u -o ListOfRepoSlug.txt ListOfRepoSlug.txt
 grep -v '^$' ListOfRepoSlug.txt > ListOfRepoSlug_temp.txt
 mv ListOfRepoSlug_temp.txt ListOfRepoSlug.txt
+cat ListOfRepoSlug.txt | wc -l
 
 timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 mkdir "$timestamp"
@@ -58,11 +93,11 @@ tar -czf "$timestamp.tar.gz" "$timestamp"
 #
 # # Perform the upload
 # curl -X PUT -T "$file" \
-#     -H "Host: $bucket.s3.amazonaws.com" \
-#     -H "Date: $dateValue" \
-#     -H "Content-Type: $contentType" \
-#     -H "Authorization: AWS $s3Key:$signature" \
-#     "$url"
+#   #     -H "Host: $bucket.s3.amazonaws.com" \
+#   #     -H "Date: $dateValue" \
+#   #     -H "Content-Type: $contentType" \
+#   #     -H "Authorization: AWS $s3Key:$signature" \
+#   #     "$url"
 
 rm -rf "$timestamp"
 rm -rf ListOfRepoSlug.txt
