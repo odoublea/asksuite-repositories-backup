@@ -21,7 +21,7 @@ This Bash script automates the backup process for repositories hosted on Bitbuck
 - `-u <username>`: Bitbucket username.
 - `-p <password>`: Bitbucket password.
 - `-w <workspace>`: Bitbucket workspace.
-- `-f`: Full backup (optional).
+- `-f`: Full backup (optional). If this parameter is not provided, the script will only backup the repositories that have been updated in the day before the script is executed. If it is provided, the script will backup all repositories in the workspace.
 
 ## How It Works
 
