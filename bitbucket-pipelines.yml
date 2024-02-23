@@ -11,7 +11,7 @@ pipelines:
         script:
           - apt-get update && apt-get install -y awscli
           - chmod 777 account_repo_backup.sh
-          - ./account_repo_backup.sh -u $userName -p $password -w $workspace
+          - ./account_repo_backup.sh -u $userName -p $password -w $workspace -b $bucketName
           - ls -lah
   custom:
     full:
@@ -19,5 +19,5 @@ pipelines:
           script:
             - apt-get update && apt-get install -y awscli
             - chmod 777 account_repo_backup.sh
-            - ./account_repo_backup.sh -f -u $userName -p $password -w $workspace
+            - ./account_repo_backup.sh -f -u $userName -p $password -w $workspace -b $bucketName
             - ls -lah
