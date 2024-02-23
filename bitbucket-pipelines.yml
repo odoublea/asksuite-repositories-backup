@@ -10,5 +10,11 @@ pipelines:
     - step:
         script:
           - chmod 777 account_repo_backup.sh
-          - ./account_repo_backup.sh $userName $password $accountName
+          - ./account_repo_backup.sh -u $userName -p $password -w $workspace
+          - ls -lah
+  full:
+    - step:
+        script:
+          - chmod 777 account_repo_backup.sh
+          - ./account_repo_backup.sh -f -u $userName -p $password -w $workspace
           - ls -lah
