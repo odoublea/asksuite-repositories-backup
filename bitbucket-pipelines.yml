@@ -10,7 +10,9 @@ pipelines:
     - step:
         script:
           - date # Date with current Time zone
-          - cp -f /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime # Change current time.
+          #- cp -f /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime # Change current time.
+          # change timezone to America/Sao_Paulo
+          - ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
           - date # New Timezone's Date/Time
           - apt-get update && apt-get install -y awscli
           - chmod 777 account_repo_backup.sh
