@@ -94,12 +94,14 @@ rm -rf ListOfRepoSlug.txt
 # Sleep for 5 seconds to allow the file to be uploaded to S3
 sleep 5
 
-# Check if upload was successful
-if aws s3 ls "s3://$bucket_name/$compressed_file" &> /dev/null; then
-    echo "File exists in S3 bucket."
+# check if upload was successful using the getobject command
+result=$(aws s3api head-object --bucket "$bucket_name" --key "$compressed_file" 2>&1)
+
+if [[ $? -eq 0 ]]; then
+  echo "File exists in the bucket."
 else
-    echo "File does not exist in S3 bucket."
-    exit 1
+  echo "File does not exist in the bucket."
+  exit 1
 fi
 
 echo "Completed"
