@@ -8,6 +8,7 @@ function jsonValue() {
 awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'$KEY'\042/){print ""; printf $(i+1)}; if( -z "$KEY2"){if($i~/'$KEY2'\042/){print $(i+1)}}}}' | tr -d '"' | sed -n ${num}p; }
 
 yesterday=$(date -d "today" "+%Y-%m-%d")
+echo "Yesterday: $yesterday"
 filter="&q=updated_on>=$yesterday"
 
 userName=""
@@ -82,7 +83,6 @@ done <"$file"
 cd ..
 compressed_file="$temp_folder.tar.gz"
 tar -czf "$compressed_file" "$temp_folder"
-ll -ls
 
 # Upload file to S3
 aws s3 cp "$compressed_file" "s3://$bucket_name/$compressed_file"
@@ -91,8 +91,6 @@ rm -rf "$temp_folder"
 rm -rf "$compressed_file"
 rm -rf ListOfRepoSlug.txt
 
-# Sleep for 5 seconds to allow the file to be uploaded to S3
-sleep 5
 
 # check if upload was successful using the getobject command
 result=$(aws s3api head-object --bucket "$bucket_name" --key "$compressed_file" 2>&1)
