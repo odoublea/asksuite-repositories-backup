@@ -82,7 +82,7 @@ done <"$file"
 cd ..
 compressed_file="$temp_folder.tar.gz"
 tar -czf "$compressed_file" "$temp_folder"
-
+ll -ls
 
 # Upload file to S3
 aws s3 cp "$compressed_file" "s3://$bucket_name/$compressed_file"
@@ -90,6 +90,9 @@ aws s3 cp "$compressed_file" "s3://$bucket_name/$compressed_file"
 rm -rf "$temp_folder"
 rm -rf "$compressed_file"
 rm -rf ListOfRepoSlug.txt
+
+# Sleep for 5 seconds to allow the file to be uploaded to S3
+sleep 5
 
 # Check if upload was successful
 if aws s3 ls "s3://$bucket_name/$compressed_file" &> /dev/null; then
