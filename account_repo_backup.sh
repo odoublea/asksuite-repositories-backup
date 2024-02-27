@@ -7,7 +7,7 @@ function jsonValue() {
     num=$3
 awk -F"[,:}]" '{for(i=1;i<=NF;i++){if($i~/'$KEY'\042/){print ""; printf $(i+1)}; if( -z "$KEY2"){if($i~/'$KEY2'\042/){print $(i+1)}}}}' | tr -d '"' | sed -n ${num}p; }
 
-yesterday=$(date -d "today" "+%Y-%m-%d")
+yesterday=$(date -d "yesterday" "+%Y-%m-%d")
 echo "Yesterday: $yesterday"
 filter="&q=updated_on>=$yesterday"
 
@@ -81,7 +81,16 @@ do
 done <"$file"
 
 cd ..
-compressed_file="$temp_folder.tar.gz"
+backup_type=""
+
+if [ -z "$filter" ]
+then
+    backup_type="full"
+else
+    backup_type="daily"
+fi
+
+compressed_file="$workspace-$backup_type-$yesterday.tar.gz"
 tar -czf "$compressed_file" "$temp_folder"
 
 # Upload file to S3
@@ -96,10 +105,10 @@ rm -rf ListOfRepoSlug.txt
 result=$(aws s3api head-object --bucket "$bucket_name" --key "$compressed_file" 2>&1)
 
 if [[ $? -eq 0 ]]; then
-  echo "File exists in the bucket."
+    echo "File exists in the bucket."
 else
-  echo "File does not exist in the bucket."
-  exit 1
+    echo "File does not exist in the bucket."
+    exit 1
 fi
 
 echo "Completed"
